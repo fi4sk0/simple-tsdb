@@ -1,0 +1,20 @@
+{
+  "name": "simple-tsdb",
+  "version": "0.0.1",
+  "description": "A simple, node-based time series database",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "test": "nodemon test.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.12"
+  },
+  "dependencies": {
+    "sqlite3": "^5.0.2",
+    "uuid": "^8.3.2"
+  }
+}
