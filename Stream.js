@@ -62,7 +62,7 @@ module.exports = class Stream {
         ]);
 
         if (data == null) {
-            return
+            throw new Error(`No stream with this name (${this.name}) in given container (${this.containerId})`)
         }
 
         this.id = data.StreamId;

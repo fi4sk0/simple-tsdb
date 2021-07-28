@@ -4,13 +4,14 @@
   "description": "A simple, node-based time series database",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --inspect index.js",
-    "test": "nodemon test.js"
+    "dev": "nodemon test.js",
+    "test": "mocha test.js"
   },
   "author": "Timo Maul",
   "license": "MIT",
   "devDependencies": {
-    "nodemon": "^2.0.12"
+    "nodemon": "^2.0.12",
+    "mocha": "^9.0.3"
   },
   "dependencies": {
     "better-sqlite3": "^7.4.3",

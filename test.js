@@ -1,130 +1,168 @@
+const { before, describe, it } = require('mocha');
+const assert = require('assert')
+
 const SimpleTsdb = require('./index.js');
 const path = require('path')
 const fs = require('fs')
 const Metadata = require('./Metadata.js')
 
+
 const testdb = path.join(__dirname, 'mydb.sqlite');
 
-if (fs.existsSync(testdb)) {
-    try {
-        fs.unlinkSync(testdb);
-    } catch {
+before(() => {
 
-    }
-    try {
-        fs.unlinkSync(testdb + "-shm");
-    } catch {
+    if (fs.existsSync(testdb)) {
+        try {
+            fs.unlinkSync(testdb);
+        } catch {
 
-    }
+        }
+        try {
+            fs.unlinkSync(testdb + "-shm");
+        } catch {
 
-    try {
-        fs.unlinkSync(testdb + "-wal");
-    } catch {
+        }
 
-    }
-}
+        try {
+            fs.unlinkSync(testdb + "-wal");
+        } catch {
 
-async function love() {
-    let myDb = new SimpleTsdb({
-        db: testdb
-    });
-
-    var myContainer = myDb.createContainer("Supercontainer", null, "AssId");
-
-    myContainer.description = "My very long description"
-    myContainer.save();
-
-    var myOtherContainer = myDb.createContainer("Other Container");
-
-
-    var pressure = myContainer.createStream("Test/Vacuum/Pressure");
-    var temperature = myContainer.createStream("Test/Vacuum/Temperature");
-
-    var names = myContainer.getStreamNames();
-    console.log(names);
-
-
-    const dt = .1;
-    const values = 5000;
-    let t = 0;
-
-    let data = []
-    for (let i = 0; i < values; i++) {
-
-        data.push([t, Math.sin(t * 2 * Math.PI / 10)])
-
-        t += dt;
-    }
-
-    data[2][1] = null;
-
-    let t1 = new Date().getTime();
-    temperature.addData(data)
-    let t2 = new Date().getTime();
-
-    console.log()
-    console.log(`INSERT: ${t2 - t1}ms for ${data.length} values`)
-
-    t1 = new Date().getTime();
-    var d = temperature.getData(data[0][0], data[data.length - 1][0]);
-    t2 = new Date().getTime();
-    console.log(`READ: ${t2 - t1}ms for ${d.length} values`)
-
-    t1 = new Date().getTime();
-    const newInterval = temperature.expandInterval(0.2, 10);
-    t2 = new Date().getTime();
-    console.log(`EXPAND: ${t2 - t1}ms for ${d.length} values`)
-    console.log(newInterval)
-
-
-    const retrievedData = temperature.getDataResampled(data[0][0], data[data.length - 1][0], 100);
-
-    // Check if it's the same
-    for (let i = 0; i < retrievedData.length; i++) {
-        if (
-            retrievedData[i][0] != data[i][0] ||
-            retrievedData[i][1] != data[i][1]) {
-            console.log("oh no")
-            break;
         }
     }
+})
 
-    console.log(retrievedData)
+const TEST_CONTAINER_ID = "testcontainer";
 
-    var m = temperature.appendMetadata("information", {
-        foo: "foo",
-        bar: 0xdeadbeef,
-        baz: [5, 6, { omg: "this is awesome" }]
+describe('Database and Containers', function testInsertPoints() {
+
+    let myDb;
+
+    it('should create a database', () => {
+        myDb = new SimpleTsdb({
+            db: testdb
+        });
     })
 
-    var m2 = Metadata.get(myDb.db, m.id)
+    let myContainer
 
-    console.log(m2.payload)
+    it('should create a container', () => {
+        myContainer = myDb.createContainer("Supercontainer", null, TEST_CONTAINER_ID);
+        assert.ok(myContainer.id, "id doesn't exist");
+    })
 
-    m2.payload.baz = "new";
-    m2.save();
+    it('should retrieve the same container', () => {
+        let oldContainer = myDb.getContainer(myContainer.id);
+        assert.ok(oldContainer, "couldn't get container")
+        assert.strictEqual(oldContainer.name, myContainer.name, "Container names differ")
+    })
 
-    m2 = Metadata.get(myDb.db, m.id)
+    it('should change and save the container description', () => {
+        myContainer.description = "My very long description"
+        myContainer.save();
 
-    console.log(m2.payload)
+        let oldContainer = myDb.getContainer(myContainer.id);
 
-    var importContainer = await myDb.importLineProtocol(path.join(__dirname, 'import.txt'));
+        assert.strictEqual(oldContainer.description, myContainer.description, "Container descriptions differ")
+    })
 
-    var tempStream = importContainer.getStream('LSM_HS_SensorCan81_Temperature_Room');
+    it('should add a stream', () => {
+        var pressure = myContainer.createStream("Test/Vacuum/Pressure");
+    })
 
-    console.log(tempStream);
+    it('should find that stream', () => {
+        var streamNames = myContainer.getStreamNames();
+        assert.ok(streamNames.includes("Test/Vacuum/Pressure"), "not ok")
+    });
 
-    var justId = importContainer.id;
-    console.log(justId);
+    it('should insert data to that stream', () => {
+        
+        let data = [
+            [0, 1.0],
+            [1, 1.1],
+            [2, 1.2],
+            [3, 1.3],
+            [4, 1.4],
+            [5, 1.5],
+            [6, 1.6]
+        ]
+        var pressure = myContainer.getStream("Test/Vaccum/Pressure")
+        console.log(pressure)
+        pressure.addData(data);
 
-    var retrievedContainer = myDb.getContainer(justId);
-    console.log(retrievedContainer)
+    })
+})
 
-    tempStream.get
 
-}
 
-love();
+//     data[2][1] = null;
+
+//     let t1 = new Date().getTime();
+//     temperature.addData(data)
+//     let t2 = new Date().getTime();
+
+//     console.log()
+//     console.log(`INSERT: ${t2 - t1}ms for ${data.length} values`)
+
+//     t1 = new Date().getTime();
+//     var d = temperature.getData(data[0][0], data[data.length - 1][0]);
+//     t2 = new Date().getTime();
+//     console.log(`READ: ${t2 - t1}ms for ${d.length} values`)
+
+//     t1 = new Date().getTime();
+//     const newInterval = temperature.expandInterval(0.2, 10);
+//     t2 = new Date().getTime();
+//     console.log(`EXPAND: ${t2 - t1}ms for ${d.length} values`)
+//     console.log(newInterval)
+
+
+//     const retrievedData = temperature.getDataResampled(data[0][0], data[data.length - 1][0], 100);
+
+//     // Check if it's the same
+//     for (let i = 0; i < retrievedData.length; i++) {
+//         if (
+//             retrievedData[i][0] != data[i][0] ||
+//             retrievedData[i][1] != data[i][1]) {
+//             console.log("oh no")
+//             break;
+//         }
+//     }
+
+//     console.log(retrievedData)
+
+//     var m = temperature.appendMetadata("information", {
+//         foo: "foo",
+//         bar: 0xdeadbeef,
+//         baz: [5, 6, { omg: "this is awesome" }]
+//     })
+
+//     var m2 = Metadata.get(myDb.db, m.id)
+
+//     console.log(m2.payload)
+
+//     m2.payload.baz = "new";
+//     m2.save();
+
+//     m2 = Metadata.get(myDb.db, m.id)
+
+//     console.log(m2.payload)
+
+//     var importContainer = await myDb.importLineProtocol(path.join(__dirname, 'import.txt'));
+
+//     var tempStream = importContainer.getStream('LSM_HS_SensorCan81_Temperature_Room');
+
+//     console.log(tempStream);
+
+//     var justId = importContainer.id;
+//     console.log(justId);
+
+//     var retrievedContainer = myDb.getContainer(justId);
+//     console.log(retrievedContainer)
+
+//     tempStream.get
+
+// }
+
+// love();
 
 
 

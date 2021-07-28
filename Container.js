@@ -97,12 +97,6 @@ module.exports = class Container {
     }
 
     getStream(name) {
-        try {
-            return new Stream(this.db, this.id, name, false); 
-        } catch {
-            console.log(`Something went wrong getting stream ${name} from container ${this.id}`);
-            return 
-        }
-         
+        return new Stream(this.db, this.id, name, false); 
     }
 }
