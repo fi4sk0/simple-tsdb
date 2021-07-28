@@ -9,6 +9,18 @@ const Metadata = require('./Metadata.js')
 
 const testdb = path.join(__dirname, 'mydb.sqlite');
 
+
+let data = [
+    [0, 1.0],
+    [1, 1.1],
+    [2, 1.2],
+    [3, 1.3],
+    [4, 1.4],
+    [5, 1.5],
+    [6, 1.6]
+]
+
+
 before(() => {
 
     if (fs.existsSync(testdb)) {
@@ -67,6 +79,7 @@ describe('Database and Containers', function testInsertPoints() {
 
     it('should add a stream', () => {
         var pressure = myContainer.createStream("Test/Vacuum/Pressure");
+        assert.ok(pressure, "didn't add stream to container properly")
     })
 
     it('should find that stream', () => {
@@ -75,24 +88,16 @@ describe('Database and Containers', function testInsertPoints() {
     });
 
     it('should insert data to that stream', () => {
-        
-        let data = [
-            [0, 1.0],
-            [1, 1.1],
-            [2, 1.2],
-            [3, 1.3],
-            [4, 1.4],
-            [5, 1.5],
-            [6, 1.6]
-        ]
-        var pressure = myContainer.getStream("Test/Vaccum/Pressure")
-        console.log(pressure)
+
+        var pressure = myContainer.getStream("Test/Vacuum/Pressure");
         pressure.addData(data);
+
+        let retrievedData = pressure.getData(0, 6);
+
+        assert.ok(retrievedData.length == data.length, "Data does not have the same size as retrievedData")
 
     })
 })
-
-
 
 //     data[2][1] = null;
 
