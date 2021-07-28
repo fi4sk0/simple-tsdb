@@ -1,22 +1,19 @@
 {
   "name": "simple-tsdb",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A simple, node-based time series database",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "dev": "nodemon --inspect index.js",
     "test": "nodemon test.js"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Timo Maul",
+  "license": "MIT",
   "devDependencies": {
     "nodemon": "^2.0.12"
   },
   "dependencies": {
     "better-sqlite3": "^7.4.3",
-    "bluebird": "^3.7.2",
-    "sqlite3": "^5.0.2",
     "uuid": "^8.3.2"
   },
   "engines": {

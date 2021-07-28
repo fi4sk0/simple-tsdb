@@ -1,4 +1,4 @@
-export function resample(from, to, count, points) {
+module.exports = function resample(from, to, count, points) {
 
     var resampled = []
     var span = (to - from) / count;

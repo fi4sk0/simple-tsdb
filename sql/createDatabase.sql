@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS [Streams] (
     [Updated] DATETIME
 );
 
-CREATE INDEX idx_streams 
+CREATE INDEX IF NOT EXISTS idx_streams 
 ON [Streams] (ContainerId, Name);
 
 CREATE TABLE IF NOT EXISTS [Data] (
@@ -23,6 +23,13 @@ CREATE TABLE IF NOT EXISTS [Data] (
     [Value] BLOB
 );
 
-CREATE INDEX idx_data 
+CREATE INDEX IF NOT EXISTS idx_data
 ON [Data] (StreamId, Timestamp);
 
+CREATE TABLE IF NOT EXISTS [Metadata] (
+    [MetadataId] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    [StreamId] INTEGER REFERENCES [Streams] ON DELETE CASCADE,
+    [ContainerId] STRING REFERENCES [Containers] ON DELETE CASCADE,
+    [Type] STRING NOT NULL,
+    [Payload] TEXT NOT NULL
+)

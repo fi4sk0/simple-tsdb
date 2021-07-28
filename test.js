@@ -1,13 +1,9 @@
-import SimpleTsdb from './index.js'
-import path from 'path'
-import fs from 'fs'
+const SimpleTsdb = require('./index.js');
+const path = require('path')
+const fs = require('fs')
+const Metadata = require('./Metadata.js')
 
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-const testdb = path.join(__dirname, 'mydb.sql');
+const testdb = path.join(__dirname, 'mydb.sqlite');
 
 if (fs.existsSync(testdb)) {
     try {
@@ -28,15 +24,18 @@ if (fs.existsSync(testdb)) {
     }
 }
 
-function love() {
+async function love() {
     let myDb = new SimpleTsdb({
         db: testdb
     });
 
-    var myContainer = myDb.createContainer("Supercontainer");
+    var myContainer = myDb.createContainer("Supercontainer", null, "AssId");
 
     myContainer.description = "My very long description"
     myContainer.save();
+
+    var myOtherContainer = myDb.createContainer("Other Container");
+
 
     var pressure = myContainer.createStream("Test/Vacuum/Pressure");
     var temperature = myContainer.createStream("Test/Vacuum/Temperature");
@@ -46,7 +45,7 @@ function love() {
 
 
     const dt = .1;
-    const values = 50000;
+    const values = 5000;
     let t = 0;
 
     let data = []
@@ -78,7 +77,7 @@ function love() {
     console.log(newInterval)
 
 
-    const retrievedData = temperature.getData(data[0][0], data[data.length - 1][0]);
+    const retrievedData = temperature.getDataResampled(data[0][0], data[data.length - 1][0], 100);
 
     // Check if it's the same
     for (let i = 0; i < retrievedData.length; i++) {
@@ -90,9 +89,38 @@ function love() {
         }
     }
 
-    var resampledData = temperature.getDataResampled(10, 20, 5)
-    console.log(resampledData);
+    console.log(retrievedData)
 
+    var m = temperature.appendMetadata("information", {
+        foo: "foo",
+        bar: 0xdeadbeef,
+        baz: [5, 6, { omg: "this is awesome" }]
+    })
+
+    var m2 = Metadata.get(myDb.db, m.id)
+
+    console.log(m2.payload)
+
+    m2.payload.baz = "new";
+    m2.save();
+
+    m2 = Metadata.get(myDb.db, m.id)
+
+    console.log(m2.payload)
+
+    var importContainer = await myDb.importLineProtocol(path.join(__dirname, 'import.txt'));
+
+    var tempStream = importContainer.getStream('LSM_HS_SensorCan81_Temperature_Room');
+
+    console.log(tempStream);
+
+    var justId = importContainer.id;
+    console.log(justId);
+
+    var retrievedContainer = myDb.getContainer(justId);
+    console.log(retrievedContainer)
+
+    tempStream.get
 
 }
 
