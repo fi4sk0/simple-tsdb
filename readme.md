@@ -38,7 +38,3 @@ let data = oldTemperatureStream.getDataResampled(t1, t2, count) // Same as getDa
 yarn
 yarn dev
 ```
-
-
-## SQL structure
-Table containers
