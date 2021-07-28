@@ -8,7 +8,7 @@ let myTSDB = new SimpleTsdb({
     db: 'myfolder/test.sqlite3'
 })
 ```
-This creates/opens and maintains a sqlite3 database (using better-sqlite3). All data is dumped as a BLOB into the `Data`-table. Every data point belongs to a `Stream`, which lives in the `Streams`-table. All streams refer to a `Container`, which lives in the `Containers`-table.
+This creates/opens and maintains a sqlite3 database (using better-sqlite3). All data is dumped as a BLOB into the `Data`-table. Every data point belongs to a `Stream`, which lives in the `Streams`-table. All streams refer to a `Container`, which lives in the `Containers`-table. And that's all that there's to it.
 
 After you've created the database object, go on as follows:
 
@@ -21,7 +21,7 @@ temperatureStream.addData([[time, value], [time, value], ...])
 
 You can create as many containers as you like. Within a container, the stream `Name` is unique.
 
-To retrieve data, you need the containers id, which is accessible liek follows:
+To retrieve data, you need the containers id, which is accessible like follows:
 ```javascript
 const containerId = myContainer.id
 let oldContainer = myTSDB.getContainer(containerId)
