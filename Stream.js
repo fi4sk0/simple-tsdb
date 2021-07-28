@@ -101,6 +101,18 @@ module.exports = class Stream {
         return resample(t1, t2, count, this.getData(t1, t2))
     }
 
+    getPoint(t1) {
+        const interval = this.expandInterval(t1, t1);
+        var t2 = t1;
+        t1 = interval[0];
+        const d = this.getDataRaw(t1, t2);
+        if (d.length > 0) {
+            return d[0]
+        } else {
+            return
+        }
+    }
+
     expandInterval(t1, t2) {
 
         const lowerBound = this.db.prepare(`SELECT Timestamp FROM [Data] WHERE StreamId = ? AND Timestamp <= ? ORDER BY Timestamp DESC`).pluck()
