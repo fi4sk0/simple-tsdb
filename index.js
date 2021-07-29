@@ -28,7 +28,6 @@ module.exports = class SimpleTsdb {
     async importLineProtocol(path) {
 
         return new Promise(res => {
-            var container = this.createContainer("Line Protocol Import", null);
 
             const rl = readline.createInterface({
                 input: fs.createReadStream(path),
@@ -60,7 +59,8 @@ module.exports = class SimpleTsdb {
                 
     
             }).on('close', () => {
-    
+                var container = this.createContainer("Line Protocol Import", null, containerId);
+
                 for (let streamName of Object.keys(allData)) {
                     var series = allData[streamName];
     
