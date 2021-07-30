@@ -54,6 +54,9 @@ module.exports = class SimpleTsdb {
     
                 for(var data of datum) {
                     let [name, value] = data.split("=")
+
+                    // Replace escaped whitespace from name
+                    name = name.replace(/\\\s/g, " ")
     
                     if (!allData.hasOwnProperty(name)) {
                         allData[name] = []
