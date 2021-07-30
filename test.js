@@ -97,6 +97,11 @@ describe('Database and Containers', function testInsertPoints() {
         assert.ok(retrievedData.length == data.length, "Data does not have the same size as retrievedData")
 
     })
+
+    it('should import line protocol file', async () => {
+        var importContainer = await myDb.importLineProtocol(path.join(__dirname, 'testdata', 'import.txt'));
+        assert.ok(importContainer.id == '60f68cb7f1e52211ef62161b')
+    })
 })
 
 //     data[2][1] = null;
@@ -151,7 +156,6 @@ describe('Database and Containers', function testInsertPoints() {
 
 //     console.log(m2.payload)
 
-//     var importContainer = await myDb.importLineProtocol(path.join(__dirname, 'import.txt'));
 
 //     var tempStream = importContainer.getStream('LSM_HS_SensorCan81_Temperature_Room');
 

@@ -1,5 +1,4 @@
 node_modules/
 .vscode/launch.json
 yarn.lock
-import.txt
 mydb.sqlite

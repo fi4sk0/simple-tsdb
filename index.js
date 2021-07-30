@@ -39,7 +39,11 @@ module.exports = class SimpleTsdb {
             let allData = {};
     
             rl.on('line', (line) => {
-                var [id, data, timestamp] = line.split(" ");
+                var [id, data, timestamp] = line.split(/(?<!\\)\s+/); // split by whitespace, not by escaped whitespace
+
+                if (id == null || data == null || timestamp == null) {
+                    return;
+                }
     
                 if (id.startsWith("#")) return;
     
